@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surpresa Romântica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f9e6e6;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .text-box {
+            font-size: 22px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            margin-bottom: 20px;
+        }
+        .gallery-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90%;
+            margin: auto;
+            position: relative;
+        }
+        .main-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.5s ease-in-out;
+        }
+        .buttons {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+        .buttons button {
+            font-size: 25px;
+            padding: 20px;
+            border: none;
+            background-color: red;
+            color: white;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .buttons button:hover {
+            background-color: darkred;
+        }
+        .thumbnail-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            border-radius: 5px;
+            opacity: 0.5;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+        .thumbnail.active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        .fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .fullscreen-container img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+        }
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 25px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>PARA A MORENA MAIS MORENOSA DE TODAS AS MORENAS</h1>
+    <p class="subtitle">❤️💖😍 FELIZ 1º DIA DOS NAMORADOS ❤️💖😍</p>
+
+    <audio id="music" src="musica_romantica.mp3"></audio>
+
+    <div class="gallery-container">
+        <div class="text-box" id="photoText"></div>
+        <div class="buttons">
+            <button onclick="prevPhoto()">❤️</button>
+            <button onclick="nextPhoto()">❤️</button>
+        </div>
+        <img id="mainPhoto" class="main-image" src="foto1.jpg" onclick="openFullscreen()">
+        
+        <div class="thumbnail-container">
+            <img class="thumbnail active" src="foto1.jpg" onclick="changePhoto(0)">
+            <img class="thumbnail" src="foto2.jpg" onclick="changePhoto(1)">
+            <img class="thumbnail" src="foto3.jpg" onclick="changePhoto(2)">
+        </div>
+    </div>
+
+    <div class="fullscreen-container" id="fullscreen">
+        <span class="close-button" onclick="closeFullscreen()">✖</span>
+        <img id="fullscreenPhoto" src="foto1.jpg">
+    </div>
+
+    <script>
+        let currentPhoto = 0;
+        const photos = ["foto1.jpg", "foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg",
+                        "foto6.jpg", "foto7.jpg", "foto8.jpg", "foto9.jpg", "foto10.jpg",
+                        "foto11.jpg", "foto12.jpg", "foto13.jpg"];
+        const photoTexts = [
+            "Primeiro vinho juntos", "Primeiro natal juntos", "Primeiro friozinho juntos",
+            "Amor à primeira vista", "Ai minha criatividade está acabando, mas olha como você estava linda",
+            "Primeiro chupão no braço", "Primeiro date caseiro", "Primeira viagem juntos",
+            "Primeiro dia fit juntos", "Primeiro encontro", "Primeiro churrasco da firma",
+            "Primeiro DENGO!", "PRIMEIRÍSSIMA FOTO DA RABA!!!"
+        ];
+        const mainPhoto = document.getElementById("mainPhoto");
+        const fullscreenPhoto = document.getElementById("fullscreenPhoto");
+        const fullscreenContainer = document.getElementById("fullscreen");
+        const thumbnails = document.querySelectorAll(".thumbnail");
+        const photoText = document.getElementById("photoText");
+        const music = document.getElementById("music");
+
+        function updateGallery() {
+            mainPhoto.src = photos[currentPhoto];
+            fullscreenPhoto.src = photos[currentPhoto];
+            photoText.textContent = photoTexts[currentPhoto];
+            photoText.style.opacity = "1";
+
+            // Atualiza miniaturas exibidas
+            let startIndex = currentPhoto === 0 ? 0 : currentPhoto - 1;
+            thumbnails.forEach((thumb, index) => {
+                thumb.src = photos[startIndex + index] || photos[index];
+                thumb.classList.toggle("active", index === 1);
+            });
+        }
+
+        function prevPhoto() {
+            currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
+            photoText.style.opacity = "0";
+            setTimeout(updateGallery, 1000);
+        }
+
+        function nextPhoto() {
+            currentPhoto = (currentPhoto + 1) % photos.length;
+            photoText.style.opacity = "0";
+            setTimeout(updateGallery, 1000);
+        }
+
+        function changePhoto(index) {
+            currentPhoto = index;
+            photoText.style.opacity = "0";
+            setTimeout(updateGallery, 1000);
+        }
+
+        function openFullscreen() {
+            fullscreenContainer.style.display = "flex";
+            updateGallery();
+            startSlideshow();
+            music.play();
+        }
+
+        function closeFullscreen() {
+            fullscreenContainer.style.display = "none";
+            stopSlideshow();
+            music.pause();
+        }
+
+        let slideshowInterval;
+        function startSlideshow() {
+            stopSlideshow();
+            slideshowInterval = setInterval(() => {
+                nextPhoto();
+                fullscreenPhoto.src = photos[currentPhoto];
+            }, 10000);
+        }
+
+        function stopSlideshow() {
+            clearInterval(slideshowInterval);
+        }
+
+        updateGallery();
+    </script>
+
+</body>
+</html>
