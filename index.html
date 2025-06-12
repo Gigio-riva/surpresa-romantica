@@ -16,11 +16,15 @@
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 5px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
         .subtitle {
             font-size: 20px;
             font-weight: bold;
             margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
         .text-box {
             font-size: 22px;
@@ -43,7 +47,8 @@
             height: auto;
             border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.5s ease-in-out;
+            transition: opacity 1s ease-in-out;
+            opacity: 0;
         }
         .buttons {
             position: absolute;
@@ -88,38 +93,13 @@
             opacity: 1;
             transform: scale(1.2);
         }
-        .fullscreen-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        .fullscreen-container img {
-            max-width: 90%;
-            max-height: 80%;
-            border-radius: 10px;
-        }
-        .close-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 25px;
-            color: white;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    <h1>PARA A MORENA MAIS MORENOSA DE TODAS AS MORENAS</h1>
-    <p class="subtitle">❤️💖😍 FELIZ 1º DIA DOS NAMORADOS ❤️💖😍</p>
+    <h1 id="title">PARA A MORENA MAIS MORENOSA DE TODAS AS MORENAS</h1>
+    <p class="subtitle" id="subtitle">❤️💖😍 FELIZ 1º DIA DOS NAMORADOS ❤️💖😍</p>
 
-    <audio id="music" src="musica_romantica.mp3"></audio>
+    <audio id="music" src="beautifulthings.mp3" loop></audio>
 
     <div class="gallery-container">
         <div class="text-box" id="photoText"></div>
@@ -127,18 +107,11 @@
             <button onclick="prevPhoto()">❤️</button>
             <button onclick="nextPhoto()">❤️</button>
         </div>
-        <img id="mainPhoto" class="main-image" src="foto1.jpg" onclick="openFullscreen()">
+        <img id="mainPhoto" class="main-image" src="foto1.jpg" onclick="startPresentation()">
         
-        <div class="thumbnail-container">
-            <img class="thumbnail active" src="foto1.jpg" onclick="changePhoto(0)">
-            <img class="thumbnail" src="foto2.jpg" onclick="changePhoto(1)">
-            <img class="thumbnail" src="foto3.jpg" onclick="changePhoto(2)">
+        <div class="thumbnail-container" id="thumbnails">
+            <!-- Miniaturas serão adicionadas via JS -->
         </div>
-    </div>
-
-    <div class="fullscreen-container" id="fullscreen">
-        <span class="close-button" onclick="closeFullscreen()">✖</span>
-        <img id="fullscreenPhoto" src="foto1.jpg">
     </div>
 
     <script>
@@ -154,72 +127,70 @@
             "Primeiro DENGO!", "PRIMEIRÍSSIMA FOTO DA RABA!!!"
         ];
         const mainPhoto = document.getElementById("mainPhoto");
-        const fullscreenPhoto = document.getElementById("fullscreenPhoto");
-        const fullscreenContainer = document.getElementById("fullscreen");
-        const thumbnails = document.querySelectorAll(".thumbnail");
         const photoText = document.getElementById("photoText");
         const music = document.getElementById("music");
+        const thumbnailsContainer = document.getElementById("thumbnails");
+
+        let slideshowInterval;
 
         function updateGallery() {
             mainPhoto.src = photos[currentPhoto];
-            fullscreenPhoto.src = photos[currentPhoto];
             photoText.textContent = photoTexts[currentPhoto];
+
+            mainPhoto.style.opacity = "1";
             photoText.style.opacity = "1";
 
-            // Atualiza miniaturas exibidas
+            thumbnailsContainer.innerHTML = "";
             let startIndex = currentPhoto === 0 ? 0 : currentPhoto - 1;
-            thumbnails.forEach((thumb, index) => {
-                thumb.src = photos[startIndex + index] || photos[index];
-                thumb.classList.toggle("active", index === 1);
-            });
+            for (let i = 0; i < 3; i++) {
+                let index = (startIndex + i) % photos.length;
+                let thumbnail = document.createElement("img");
+                thumbnail.src = photos[index];
+                thumbnail.className = "thumbnail";
+                if (i === 1) thumbnail.classList.add("active");
+                thumbnail.onclick = () => changePhoto(index);
+                thumbnailsContainer.appendChild(thumbnail);
+            }
         }
 
         function prevPhoto() {
             currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
-            photoText.style.opacity = "0";
+            resetFade();
             setTimeout(updateGallery, 1000);
         }
 
         function nextPhoto() {
             currentPhoto = (currentPhoto + 1) % photos.length;
-            photoText.style.opacity = "0";
+            resetFade();
             setTimeout(updateGallery, 1000);
         }
 
         function changePhoto(index) {
             currentPhoto = index;
-            photoText.style.opacity = "0";
+            resetFade();
             setTimeout(updateGallery, 1000);
         }
 
-        function openFullscreen() {
-            fullscreenContainer.style.display = "flex";
-            updateGallery();
-            startSlideshow();
+        function resetFade() {
+            mainPhoto.style.opacity = "0";
+            photoText.style.opacity = "0";
+        }
+
+        function startPresentation() {
             music.play();
+            slideshowInterval = setInterval(nextPhoto, 10000);
         }
 
-        function closeFullscreen() {
-            fullscreenContainer.style.display = "none";
-            stopSlideshow();
-            music.pause();
-        }
-
-        let slideshowInterval;
-        function startSlideshow() {
-            stopSlideshow();
-            slideshowInterval = setInterval(() => {
-                nextPhoto();
-                fullscreenPhoto.src = photos[currentPhoto];
-            }, 10000);
-        }
-
-        function stopSlideshow() {
-            clearInterval(slideshowInterval);
-        }
+        setTimeout(() => {
+            document.getElementById("title").style.opacity = "1";
+            document.getElementById("subtitle").style.opacity = "1";
+            mainPhoto.style.opacity = "1";
+            photoText.style.opacity = "1";
+        }, 1000);
 
         updateGallery();
     </script>
 
 </body>
 </html>
+
